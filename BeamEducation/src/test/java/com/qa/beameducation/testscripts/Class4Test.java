@@ -1,5 +1,9 @@
 package com.qa.beameducation.testscripts;
 
+import static org.testng.Assert.assertEquals;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -19,24 +23,17 @@ import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
 
 import bsh.Console;
-//118, 144, 152, 153, 
-public class Class4Test{
-
-	public Page page;
+ //From 109 error in last 2 xpaths
+public class Class4Test extends BaseTest{
+	
+	private int rowIndex = 0; // Initialize rowIndex
+    private int columnIndex = 0; // Initialize columnIndex
+	
 public Workbook workbook;
 public Cell cell;
 String File_Path = "C:\\Users\\Rhibhus\\eclipse-workspace\\BeamEducation\\src\\main\\java\\excel\\OutcomeDataSheet.xlsx";
 
-String url = "https://testing.dj9yhpcsi54a3.amplifyapp.com/";
-String username = "//input[@id='userNamePlaceholder']";
-String password = "//input[@id='userPasswordPlaceholder']";
-String loginButton = "//button[text()='Login']";
-String OTP = "//input[@id='userPasswordPlaceholder']";
-String submitOTP = "//button[text()='Login']";
-String myClasses = "//span[text()='My Classes']";
-String class1 = "//span[text()='SmartClass1']";
-
-
+	String class4 = "//span[text()='SmartClass4']";
 
 	String composingSentences = "//span[text()='Composing Sentences']";
 	String structuralDevice = "//span[text()='Structural Devices']";
@@ -56,28 +53,15 @@ String class1 = "//span[text()='SmartClass1']";
 	String save = "//button[text()='Save']";
 
 	@BeforeTest
-	public void launchBrowser() throws InterruptedException {
-	Playwright playwright = Playwright.create();
-	Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false).setSlowMo(50));
-     page = browser.newPage();
-     page.navigate(url);
-     page.fill(username, "divyashree.kumara@rhibhus.com");
-     page.fill(password, "Divya@123");
-     page.click(loginButton);
-     Thread.sleep(4000);
-     page.fill(OTP, "123456");
-     page.click(submitOTP);
-     Thread.sleep(2000);
-     page.click(myClasses);
+	public void login() throws InterruptedException {
+		BaseTest.launchBrowser();
+		Thread.sleep(2000);	
 	}
-
-	
-	
 	@Test(priority=1,  dataProvider = "Beam", dataProviderClass = Class4ExcelData.class)
-	public void addcase(String composingsentences, String structuraldevices, String Developingparagraphs, String CreatingNarratives, String Purpose, String Punctuation, String Tenses, String Joinedupwritting, String PrefixesandSuffixes, String SpellingLists, 	String Timeandcause, String NounsandPronouns) throws InterruptedException, IOException
+	public void addcase(String cases, String composingsentences, String structuraldevices, String Developingparagraphs, String CreatingNarratives, String Purpose, String Punctuation, String Tenses, String Joinedupwritting, String PrefixesandSuffixes, String SpellingLists, 	String Timeandcause, String NounsandPronouns, String expectedresults) throws InterruptedException, IOException
 	{
-			page.click("//span[text()='SmartClass4']");
-            page.click("//td[@class='addButton']");
+			page.click(class4);
+            page.click("//span[@class='addButton']");
             page.click(composingSentences);
             page.click(scroll);
             page.click(composingsentences);
@@ -131,76 +115,51 @@ String class1 = "//span[text()='SmartClass1']";
             Thread.sleep(3000);
             page.click(calculateOutcome);
             Thread.sleep(2000);
-            String outcomeText1 = page.locator(outcomeTextLocator).textContent();
-            System.out.println(outcomeText1);   
-//            String expectedResult = expectedresult;
-//            if(expectedResult.equals(outcomeText1))
-//            {
-//            	System.out.println(expectedResult + " "+ outcomeText1+ " "+ "is same");
-//            }
-//            else {
-//            	System.out.println(expectedResult + " "+ outcomeText1+ " "+ "is not same");
-//            }
-//            
-            String[] textData = { outcomeText1 };
+            String outcomeText = page.locator(outcomeTextLocator).textContent();
+            System.out.println(outcomeText);   
             
-            try (Workbook workbook = new XSSFWorkbook()) {
-                Sheet sheet = workbook.createSheet("Outcome Data");
-                for (int i = 0; i < textData.length; i++) {
-                   Row row = sheet.createRow(0);
-                  Cell cell = row.createCell(0);
-                  cell.setCellValue(textData[i]);
-                  }
-               
-                try (FileOutputStream outputStream = new FileOutputStream(File_Path)) {
-                 workbook.write(outputStream);
- //                System.out.println("Text stored in Excel successfully.");
-              } catch (IOException e) {
-                 e.printStackTrace();
-              }
+            try {
+                // Load the Excel file (change the file path as per your requirement)
+                String excelFilePath = "C:\\Users\\Rhibhus\\git\\beameducation\\BeamEducation\\src\\main\\java\\excel\\OutcomeDataSheet.xlsx";
+                FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+                Workbook workbook = new XSSFWorkbook(inputStream);
+                Sheet sheet = workbook.getSheet("Class4");
+
+             // Assuming 'rowIndex' tracks the row where you want to store the data
+                Row row = sheet.createRow(rowIndex);
+
+                // Assuming 'columnIndex' tracks the column where you want to store the outcomeText1
+                Cell cell = row.createCell(columnIndex);
+                cell.setCellValue(outcomeText);
+
+                // Write the data back to the Excel file
+                FileOutputStream outputStream = new FileOutputStream(excelFilePath);
+                workbook.write(outputStream);
+                workbook.close();
+
+                // Increment rowIndex for the next iteration
+                rowIndex++;
+                
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-          catch (IOException e) {
-              e.printStackTrace();
-          }
-      
+            
+            
+            assertEquals(outcomeText, expectedresults,"Both are equal");           
+            if(outcomeText.equals(expectedresults))
+            {
+            	System.out.println(expectedresults+" " +outcomeText+ " " +"is same");
+            }
+            else {
+            	System.out.println(expectedresults+" " +outcomeText+"is not same");
+            }
+ 
             Thread.sleep(2000);
             page.click(save);
             Thread.sleep(3000);
-//    browser.close();        
+
+    //        browser.close();	
 	}
-}
- 
-
-//
-//if (pageTitle.equals(expectedTitle)) {
-//    System.out.println("Page titles are equal.");
-//    // Additional actions or logging for when they are equal
-//} else {
-//    System.out.println("Page titles are not equal.");
-//    // Additional actions or logging for when they are not equal
-//}
-
-   
-// Get the last used row index or start from 0 if the sheet is empty
-//int lastRowIndex = sheet.getLastRowNum() >= 0 ? sheet.getLastRowNum() + 1 : 0;
-//
-//// Loop through each outcome locator
-//for (String locator : textData) {
-//
-//// Retrieve text content for each outcome locator
-//  String outcomeText = page.locator(outcomeTextLocator).textContent();
-//
-//    // Create a new row and cell for each outcome
-//    Row row = sheet.createRow(lastRowIndex);
-//    Cell cell = row.createCell(0);
-////             cell.setCellValue(outcomeText);
-//
-//    // Move to the next row for the next outcome
-//    lastRowIndex++;
-//}
-//             cell.setCellValue(outcomeText1);
-
-
-
-            
+	
+}       
           

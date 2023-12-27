@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -14,10 +14,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.testng.annotations.DataProvider;
 
-public class Class4ExcelData  {
+public class Class5ExcelData {
 
 	public static String 	F_NAME="C:\\Users\\Rhibhus\\git\\beameducation\\BeamEducation\\src\\main\\java\\excel\\Grades.xlsx";
-	public static String 	S_name="Sheet1";
+	public static String 	S_name="Class5";
 	
 			@DataProvider(name = "Beam")
 		     public static Object[][] readExcelData() throws IOException {
@@ -61,4 +61,4 @@ public class Class4ExcelData  {
 		                return null;
 		        }
 		    }
-	}
+}
