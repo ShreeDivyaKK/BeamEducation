@@ -23,9 +23,8 @@ public class BaseTest {
 	Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false).setSlowMo(50));
      page = browser.newPage();
      page.navigate(url);
-     page.fill(username, "divyashree.kumara@rhibhus.com");
-     page.fill(password, "Divya@123");
-     page.click(loginButton);
+     page.fill(username, "abcd@gmail.in");
+     page.fill(password, "Dcba@123");
      Thread.sleep(4000);
      page.fill(OTP, "123456");
      page.click(submitOTP);
